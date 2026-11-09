@@ -1,81 +1,129 @@
-# Rendering w Minecrafcie 26.x (26.2 → 26.3) dla klientów i modów
+# Rendering w Minecrafcie 26.3 (wersja docelowa)
 
-Notatka zebrana 9 listopada 2026 z publicznych źródeł (lista na dole), opisana własnymi słowami. Dokumentacja Fabric, z której korzystam, dotyczy **26.2**, a nie 26.3. Tam, gdzie coś jest wnioskiem autora artykułu, a nie potwierdzonym faktem, jest to zaznaczone.
+Zebrane 9 listopada 2026 z publicznych źródeł (lista na dole), opisane własnymi słowami. Wersja 26.3 („Wilderness Bound”) wyszła 15 września 2026.
 
-## Najważniejsze w skrócie
-- Od **26.2** Minecraft ma wbudowany, opcjonalny backend **Vulkan** obok OpenGL.
-- W **26.3** zmieniono sposób rysowania przezroczystości: stary system Improved Transparency zastąpiono techniką **OIT** (order-independent transparency).
-- Kod rysujący w modach powinien używać abstrakcji **Blaze3D**, a nie surowych wywołań OpenGL.
-- Rysowanie GUI działa w modelu „render state”. Dokumentacja Fabric dla 26.2 opisuje je przez klasę `GuiGraphicsExtractor` (nazewnictwo klas rozbiega się między źródłami, zob. [slownik.md](slownik.md)).
-- Nadpisywanie shaderów rdzenia (core) jest oficjalnie niewspierane i może przestać działać po aktualizacji.
+Oznaczenia pewności:
+- **[26.3]** potwierdzone w źródłach opisujących właśnie 26.3 (poradnik migracji NeoForged 26.2 → 26.3, oficjalny opis wydania, wpis Fabric o 26.3).
+- **[26.2]** pochodzi z dokumentacji lub artykułów o 26.2. Dla 26.3 niezweryfikowane.
+- **[autor]** twierdzenie autora artykułu, nie sprawdzone w kodzie.
 
-## Backend Vulkan (26.2)
-- Opcjonalny i eksperymentalny. Mojang zaznacza, że może być mniej wydajny i stabilny niż OpenGL.
-- Wymaga Vulkan 1.2 z funkcjami dynamic rendering i push descriptors. Preferuje dedykowane karty graficzne. Na macOS działa przez MoltenVK (warstwa tłumacząca na Metal).
-- Włączanie: Options → Video Settings → opcja Graphics API. Wartości: Default, Prefer Vulkan (Experimental), Prefer OpenGL.
-- Ustawienie jest lokalne dla gracza i nie wpływa na światy ani serwery.
-- Przy awarii startu gra schodzi sama: Vulkan → Default → Prefer OpenGL.
-- Aktywny backend widać na ekranie F3 (linia o trybie prezentacji).
-- Mody zależne od wnętrzności OpenGL (np. Sodium i pochodne) mają osobną ścieżkę kodu dla Vulkana, więc zgodność trzeba sprawdzać u każdego moda osobno.
-- Nieprzetestowany trop z tytułu jednego artykułu: wersja 26.4 miałaby domyślnie używać Vulkana. Nie sprawdziłem treści, więc traktuj jako plotkę.
+Środowisko budowania (Java, Gradle, Loom, Fabric API) jest w [srodowisko-26-3.md](srodowisko-26-3.md). Pojęcia w [slownik.md](slownik.md).
 
-## OIT w 26.3
-- Zastępuje Improved Transparency przy rysowaniu przezroczystych powierzchni (szkło, woda, lód, liście).
-- Stary system zależał od kolejności rysowania warstw, więc przy ruchu kamery mogły występować migotanie i błędy. OIT zbiera wszystkie przezroczyste fragmenty w danym pikselu i łączy je matematycznie, niezależnie od kolejności.
-- Zmiany w shaderach: dodano m.in. `core/oit_composite.fsh` i zestaw plików `oit_*.glsl`, usunięto dawny łańcuch post-processingu przezroczystości. Pre-Release 1 dołożył `core/blit_depth.fsh` jako alternatywny sposób kopiowania głębi, bo pierwotny nie działał na części urządzeń.
-- Zmieniono nazwy shaderów chmur i granicy świata, a w wielu shaderach core doszły nowe definicje związane z OIT.
-- Wydajność: oficjalnie spodziewany jest wyższy koszt niż w starym systemie, szczególnie w widokach pełnych szkła. Brak publicznych benchmarków.
-- Znane problemy w snapshocie 2: różowy ekran z Vulkanem na Macu i zbyt ciemne górne ściany w oświetleniu bytów.
-- Mojang ostrzega, że nadpisywanie shaderów core jest niewspierane. Mody i paczki shaderów, które ingerują w pass przezroczystości, mogą wymagać aktualizacji (to wniosek autora artykułu, nie potwierdzona awaria).
+## Skrót najważniejszych zmian [26.3]
+- Okno i wejście przeszły z **GLFW na SDL3**. Zmieniły się stałe klawiszy i myszy.
+- API renderowania zostało wydzielone z `com.mojang.blaze3d` do nowego projektu **Renderpearl**.
+- Shadery: `#moj_import` → `#include`, jawne lokalizacje `in`/`out`, kompilacja przez Shaderc, zmienione nazwy plików.
+- Przezroczystość: nowy algorytm **OIT** (Wavelet OIT) za ustawieniem Improved Transparency.
+- Teren rysowany przez **MultiDrawIndirect** na obsługiwanych urządzeniach.
+- Nowa komenda `/posteffect` do shaderów post-processingu z paczek zasobów.
+- Wersje paczek: dane **121.0**, zasoby **97.1**.
+- Wymagana jest Java 25.
 
-## Zgodność modów z 26.3
-Według jednego z artykułów stabilne wersje na 26.3 miały m.in. Fabric API 0.165.0, Sodium 0.9.2, Iris 1.11.7 i Lithium 0.26.2. Przed aktualizacją każdy mod trzeba sprawdzić osobno.
+## Okno i wejście: SDL3 [26.3]
+To ważne dla klientów z własnym ClickGUI i bindami.
+- Wejście idzie przez SDL, a nie GLFW.
+- `KeyEvent#scancode` zmieniło nazwę na `keycode`. Pole `key` zawiera teraz scancody SDL, a `keycode` kody klawiszy SDL.
+- Przyciski myszy mają stałe `SDLMouse`, a modyfikatory maski `SDLKeycode#SDL_KMOD_*`. Do bindów używaj `InputConstants.KEY_*` lub `SDLScancode`.
+- `TextInputManager#startTextInput` i `stopTextInput` przyjmują teraz obiekt właściciela. Własne pola tekstowe powinny wołać `onTextInputFocusChange` z `GuiEventListener#setFocused`.
+- `GLX` usunięto na rzecz `SdlDebug` i `SDLEventHandler`. `Window` ma `setFullscreen` i `setExclusiveFullscreen`, a `MonitorManager` identyfikuje monitory przez `int`, nie `long`.
+- Linux preferuje Wayland, gdy jest dostępny (opis wydania).
 
-Uwaga o rozbieżności: snapshot 2 podaje wersje paczek danych 109.0 i zasobów 90.0, a artykuł o „co się psuje” podaje 121.0 i 97.1. Różnica może wynikać z późniejszych snapshotów, więc przed użyciem sprawdź aktualne wartości.
+## Renderpearl, czyli podział Blaze3D [26.3]
+- API renderowania wyniesiono z `com.mojang.blaze3d` do nowego projektu `com.mojang.renderpearl` z pakietami `api`, `backend` i `frontend`.
+- Wiele klas zmieniło lokalizację, np. `RenderPipeline`, `BlendFunction`, `GpuBuffer`, `GpuTexture`. `GpuBuffer` i `GpuTexture` stały się interfejsami z klasami bazowymi.
+- Usunięto `RenderSystem#outputColorTextureOverride` i `outputDepthTextureOverride`. Cel renderowania podaje się teraz przy tworzeniu `RenderPass` przez command encoder.
+- `FeatureRenderDispatcher#renderAllFeatures` jest statyczne i przyjmuje pass oraz `PreparedFrame`.
+- `RenderPipeline` przyjmuje mapę typów shaderów do identyfikatorów oraz rozmiar push constants.
+- `RenderTarget` i `TextureTarget` przyjmują opcjonalny `GpuFormat` głębi zamiast wartości logicznej.
+- Starsze źródła (dokumentacja Fabric dla 26.2) mówią o warstwie Blaze3D. Dla 26.3 nazwy pakietów mogą być już inne, więc sprawdzaj importy w jarze.
 
-## Rysowanie GUI (dokumentacja Fabric, 26.2)
-- Dokumentacja Fabric dla 26.2 nazywa główną klasę rysowania `GuiGraphicsExtractor`. Starsze nazwy z tej samej roli to `DrawContext` i `GuiGraphics`. Issue o migracji `blit` dla 26.2 nadal używa nazwy `GuiGraphics`, więc nie wiem na pewno, czy to zmiana nazwy tej samej klasy, czy zależy to od mapowania nazw. Przed użyciem sprawdź nazwę w jarze swojej wersji.
-- Figury: `fill(...)` (wypełniony prostokąt), `outline(...)`, `horizontalLine(...)`, `verticalLine(...)`. Inne kształty wymagają `BufferBuilder`.
-- Przycinanie: `enableScissor(...)` i `disableScissor()`, mogą być zagnieżdżane, każde włączenie wymaga wyłączenia.
-- Tekstury: `blit(...)` z wieloma przeciążeniami. Zaleca się wersję z rozmiarem tekstury i potokiem, np. `RenderPipelines.GUI_TEXTURED`.
-- Tekst: `text(...)` przyjmuje czcionkę, napis lub `Component`, pozycję, kolor i flagę cienia. Kolory są w formacie **ARGB**. Przekazanie samego RGB sprawi, że tekst będzie przezroczysty. Pomocna jest m.in. `ARGB.opaque(...)`.
-- Macierze: stos `Matrix3x2fStack` (z `pose()`), operacje `pushMatrix` i `popMatrix` muszą być sparowane. Strona w tym miejscu jest niespójna, bo opis mówi o starszym `PoseStack`, a kod używa `Matrix3x2fStack`.
+## Shadery [26.3]
+- `#moj_import` zmieniono na `#include`.
+- Zmienne `in` i `out` muszą mieć jawne lokalizacje (layout), a shadery vanilla wymagają rozszerzenia `GL_ARB_separate_shader_objects`.
+- Kompilator GLSL używa Shaderc i udostępnia makra, m.in. `RENDERPEARL_DEPTH_IS_ZERO_TO_ONE` oraz `RENDERPEARL_INSTANCE_INDEX_INCLUDES_BASE_INSTANCE`.
+- Zmiany nazw: `rendertype_clouds` → `clouds`, `rendertype_world_border` → `world_border`, a `text_background` został scalony z `text`. Doszły i zniknęły shadery OIT, głębi i przezroczystości.
+- Shadery terenu (`terrain.vsh`, `terrain.fsh`) przebudowano pod multi-draw. Niektóre pola w `Globals` i `DynamicTransforms` poukładano inaczej, żeby oszczędzić pamięć.
+- Mojang zaznacza, że **nadpisywanie shaderów core jest niewspierane** i mogą się zmienić w każdej chwili. Paczki podmieniające je najłatwiej się psują.
 
-## Podstawy niskopoziomowe (dokumentacja Fabric, 26.2)
-- Bezpośrednie OpenGL nie jest wspierane. Kod ma korzystać z warstwy **Blaze3D**, która stoi nad OpenGL i Vulkanem.
-- `BufferBuilder` formatuje dane wierzchołków i wysyła je do backendu. Wierzchołek dodaje się przez `addVertex(Matrix4f, x, y, z)`, a potem dopisuje pozostałe atrybuty w kolejności formatu.
-- `VertexFormat` i `DefaultVertexFormat` opisują układ wierzchołka (np. `POSITION_COLOR`, `POSITION_TEX`, `BLOCK`, `NEW_ENTITY`).
-- `VertexFormat.Mode` określa sposób składania prymitywów: `TRIANGLES`, `TRIANGLE_STRIP`, `TRIANGLE_FAN`, `QUADS`, `LINES`, `DEBUG_LINES`.
-- Zła kolejność wierzchołków (winding) może sprawić, że ściana zostanie odrzucona (culling).
-- Od 1.21.6 rendering przechodzi na `RenderType`, `RenderPipeline` i `RenderState`. Dane gry są najpierw kopiowane do render state, żeby można było przygotowywać następną klatkę podczas rysowania obecnej. W 1.21.8 GUI działa już w tym modelu (`GuiGraphicsExtractor` dopisuje do render state, a `GuiRenderer#prepare` wysyła dane).
+## OIT (przezroczystość) [26.3]
+- Ustawienie Improved Transparency włącza teraz algorytm OIT. Rysuje on przezroczyste obiekty bez sortowania. Naprawia sporo błędów z kolejnością, ale dodaje drobne artefakty (np. kolor chmur za wieloma warstwami) i według deweloperów kosztuje więcej wydajności niż stary system.
+- Przełącznik debugowy: F3 + X (przypisanie można zmienić).
+- Technika to Wavelet OIT w trzech etapach: granice głębi, transmitancja i akumulacja. Dwa pierwsze etapy aktualizują tylko alfę, a akumulacja ustawia kolor.
+- Shadery używają definicji `OIT_ALPHA_ONLY`, żeby w przebiegach alfa pominąć mgłę, lightmapę i nakładkę. Fragment shader dołącza `minecraft:oit.glsl`, woła `executeAlphaOnlyPhase`, a w akumulacji `sampleColorForAccumulation`.
+- Potoki grupuje się przez `OitPipelineSet.builder` z metodami `with*Modifier`. `RenderType` podpina zestaw przez `RenderSetup#setOitPipelines`. Rysowanie: `RenderType#prepare` i `PreparedRenderType#drawFromBufferOit`.
+- Magazyn `oitTranslucent` zastępuje dawne koszyki translucent, gdy włączone jest `SubmitNodeStorage#setUseImprovedTransparency`. W takim przypadku nie wolno wołać `renderAllFeatures` na tym magazynie, bo elementy rysowałyby się wielokrotnie.
+- Pliki: `core/oit_composite.fsh`, `include/oit.glsl`, `core/blit_depth.fsh` (alternatywna kopia głębi na urządzeniach, gdzie pierwotna nie działa).
 
-## HUD (dokumentacja Fabric, 26.2)
-- Rejestracja przez `HudElementRegistry`. Element (`HudElement`) to zwykle lambda dostająca `GuiGraphicsExtractor` i `DeltaTracker`.
-- Pozycjonowanie: np. `HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, id, element)` wstawia element tuż przed czatem. API samo zarządza kolejnością warstw.
-- Animacje: `DeltaTracker#getGameTimeDeltaPartialTick(false)` zwraca postęp między tickami i zatrzymuje się przy `/tick freeze`. Dla animacji w czasie rzeczywistym użyj `Util.getMillis()`.
-- Mieszanie kolorów: `ARGB.linearLerp`, często razem z `Mth.sin`.
+## Teren i post-processing [26.3]
+- Teren używa MultiDrawIndirect na obsługiwanych urządzeniach.
+- `/posteffect` stosuje shadery post-processingu zdefiniowane w paczkach zasobów. Deweloperzy zaznaczają, że mogą to jeszcze przeprojektować.
 
-## Migracja kodu ze starszych wersji
-Zmiana z 26.2: `GuiGraphics.blit` wymaga teraz potoku renderowania jako pierwszego argumentu, a współrzędne U i V przyjmuje jako `float`. Wzorzec migracji: dopisać `RenderPipelines.GUI_TEXTURED` na początku, zrzutować U i V na `float`, a w krótszych przeciążeniach dopisać jawnie rozmiar tekstury (dawniej domyślnie 256×256). Wybór innego potoku niż `GUI_TEXTURED` może zmienić wygląd, bo ten odpowiada dawnemu domyślnemu mieszaniu. Każde przeciążenie warto zweryfikować na faktycznym jarze 26.2.
+## Klasy renderujące [26.3]
+- `GameRenderer` implementuje `ResourceManagerReloadListener`. Pole `itemInHandRenderer` stało się `firstPersonHandsAndItemsRenderer`, a `render` i `renderLevel` nie przyjmują argumentów.
+- `ItemInHandRenderer` zmienił nazwę na `FirstPersonHandsAndItemsRenderer`.
+- `LevelRenderer#render` przyjmuje wartość logiczną dla spójnej głębi. Blit konturów bytów nazywa się teraz `blitEntityOutline`.
+- `CloudRenderer`, `WeatherEffectRenderer` i `WorldBorderRenderer` dzielą `render` na `prepare` i osobne `renderOit`.
+- `RenderPipelines`: `ARMOR_TRANSLUCENT` → `WOLF_ARMOR_CRACKS`, `LINES_TRANSLUCENT` → `LINES_TRANSLUCENT_NO_DEPTH_WRITE`, usunięto potoki tła tekstu, dodano potoki terenu z multidraw.
+- `SubmitNodeCollection`: `seeThroughNameTags` → `seeThrough`, `gizmos` zastąpiono przez `translucentGizmos` i `solid`, a `alwaysOnTop` → `alwaysOnTopGizmos`.
+- `submitModel` i `submitModelPart` nie przyjmują parametru nakładki pękania (jest osobne `submitCrumblingOverlay`) i biorą `UvMapping` zamiast `TextureAtlasSprite`.
+- Nowe palety tekstur: sekcja `palette` w `.png.mcmeta` zastępuje atlas wykończeń zbroi. `TrimMaterial` używa `palette_id` zamiast `asset_name`.
+- Cząsteczki: `SoulParticle` → `EmissiveRisingParticle`.
 
-## Co to znaczy dla własnych klientów i modów
-- Rysuj interfejs przez `GuiGraphicsExtractor` i potoki, bez surowego OpenGL. Wtedy kod działa na obu backendach.
-- Własne shadery (zaokrąglenia, blur, cienie) są wrażliwe na zmiany core. Trzymaj je w osobnej warstwie i testuj po każdej aktualizacji.
-- Kolory zawsze jako ARGB.
-- Render4U ([render4u.md](render4u.md)) deklaruje wsparcie dla Fabric 26.3 i nowszych oraz dla Vulkana i OpenGL, co zgadza się z opisanym tu kierunkiem zmian. Dokumentacja Fabric jest jednak dla 26.2, więc różnice między 26.2 a 26.3 w API nie są zweryfikowane. Sprawdzaj, którą wersję Minecrafta biblioteka aktualnie wspiera.
+## Rysowanie GUI i HUD
+- **[26.3]** Klasa `GuiGraphicsExtractor` istnieje w 26.3 (poradnik NeoForged wymienia jej zmiany: `textWithWordWrap` zwraca teraz następną pozycję y, zmieniły się przeciążenia tooltipów). Doszło `Font#prepareBackground`.
+- **[26.3]** Artykuł o porcie moda z 26.1.2 na 26.3 zgłasza, że `GuiGraphicsExtractor`, `HudElementRegistry` i architektura entity render state nie zmieniły się w sposób łamiący. To pojedynczy projekt, więc nie jest to gwarancja dla każdego kodu.
+- **[26.2]** Figury: `fill(...)`, `outline(...)`, `horizontalLine(...)`, `verticalLine(...)`. Inne kształty wymagają `BufferBuilder`.
+- **[26.2]** Przycinanie: `enableScissor(...)` i `disableScissor()`, zagnieżdżalne, każde włączenie wymaga wyłączenia.
+- **[26.2]** Tekstury: `blit(...)` z potokiem jako pierwszym argumentem (np. `RenderPipelines.GUI_TEXTURED`) i współrzędnymi U, V jako `float`.
+- **[26.2]** Tekst: `text(...)` przyjmuje czcionkę, napis lub `Component`, pozycję, kolor i flagę cienia. Kolory są w formacie ARGB, a samo RGB daje przezroczysty tekst (pomaga m.in. `ARGB.opaque(...)`).
+- **[26.2]** Stos macierzy `Matrix3x2fStack` (z `pose()`), `pushMatrix` i `popMatrix` w parach.
+- **[26.2]** HUD: `HudElementRegistry`, np. `attachElementBefore(VanillaHudElements.CHAT, id, element)`. Element dostaje `GuiGraphicsExtractor` i `DeltaTracker`. Dla animacji w czasie rzeczywistym użyj `Util.getMillis()`, a `getGameTimeDeltaPartialTick(false)` zatrzymuje się przy `/tick freeze`.
+- **[26.2]** Model „render state”: dane gry są kopiowane do stanu renderowania, a `GuiRenderer#prepare` je wysyła, co pozwala przygotowywać następną klatkę podczas rysowania obecnej.
+- **[26.2]** `BufferBuilder`: `addVertex(Matrix4f, x, y, z)`, potem pozostałe atrybuty w kolejności `VertexFormat`. Formaty m.in. `POSITION_COLOR`, `POSITION_TEX`. Tryby: `TRIANGLES`, `QUADS`, `LINES` itd. Zła kolejność wierzchołków może dać odrzucenie ściany (culling).
+
+## Vulkan
+- **[26.2]** Od 26.2 jest opcjonalny, eksperymentalny backend. Wybór w Options → Video Settings → Graphics API (Default, Prefer Vulkan, Prefer OpenGL). Mojang mówi, że może być mniej wydajny i stabilny niż OpenGL.
+- **[26.3]** Oficjalny opis wydania 26.3 nie wspomina o Vulkanie. Notatki snapshotu wymieniają znaną usterkę Vulkana na Macu, a w kodzie są makra Renderpearl, więc backend wciąż istnieje. Co dokładnie zmieniło się w nim w 26.3, nie wiem.
+- Plotka z tytułu jednego artykułu: Vulkan miałby być domyślny w 26.4. Nie sprawdzałem treści.
+
+## Zgodność modów w 26.3 [autor]
+- Według jednego artykułu stabilne wersje na 26.3 mają m.in. Fabric API 0.165.0, Sodium 0.9.2, Iris 1.11.7 i Lithium 0.26.2.
+- Liczba modów na Modrinth dla 26.3 jest mniejsza niż dla 26.2. Sam wpis na liście nie dowodzi, że mod działa.
+- Zmiany w Fabric API w 26.3 (wpis Fabric): usunięto rejestry kompostowania, paliw, warzenia oraz ogołacania, orania i spłaszczania na rzecz systemów danych vanilli. Doszły m.in. API płynów, callback przepływu płynu, rozszerzenie `TooltipFlag` i dostawca mocy zaklęć.
+
+## Rozbieżności źródeł
+| Temat | Co mówią źródła | Jak traktować |
+|---|---|---|
+| Wersje paczek | Snapshot 2: dane 109.0, zasoby 90.0. Wydanie 26.3: dane 121.0, zasoby 97.1 | Obowiązują wartości z wydania (121.0 i 97.1). Starsze były wcześniejszym snapshotem |
+| Warstwa API renderowania | Dokumentacja Fabric 26.2: Blaze3D. Poradnik 26.3: Renderpearl | Dla 26.3 przyjmuj Renderpearl, a importy sprawdzaj w jarze |
+| Nazwa klasy GUI | Issue o migracji `blit` dla 26.2: `GuiGraphics`. Dokumentacja 26.2 i poradnik 26.3: `GuiGraphicsExtractor` | Dla 26.3 przyjmuj `GuiGraphicsExtractor` |
+| Przezroczystość | Snapshot 2: OIT „zastąpiło” ustawienie. Opis wydania: ustawienie Improved Transparency włącza OIT | Ustawienie zostało, algorytm jest nowy |
+
+## Co to znaczy dla własnego klienta lub moda (26.3)
+- Klawisze i mysz: używaj stałych SDL i pól `key`/`keycode` w nowym znaczeniu.
+- Własne shadery: `#include`, jawne lokalizacje in/out, nowe nazwy plików, i nie polegaj na nadpisywaniu shaderów core.
+- Przezroczystość: jeśli rysujesz przezroczyste elementy w świecie, uwzględnij potoki OIT (`OitPipelineSet`).
+- UI: rysuj przez `GuiGraphicsExtractor` i potoki, kolory zawsze ARGB.
+- Render4U ([render4u.md](render4u.md)) deklaruje Fabric 26.3+ oraz Vulkan i OpenGL, co zgadza się z kierunkiem zmian opisanym tu.
 
 ## Do uzupełnienia
-- [ ] Dokumentacja „Rendering in the World” (renderowanie w świecie 3D): strona nie była dostępna w mojej sesji.
-- [ ] Dokładny opis Blaze3D, bo żadne z przejrzanych źródeł nie opisuje go szczegółowo.
-- [ ] Sprawdzenie, co faktycznie zmienia się w 26.3 w Fabric API poza OIT (dokumentacja jest dla 26.2).
-- [ ] Potwierdzenie plotki o Vulkanie jako domyślnym w 26.4.
+- [ ] Ostatnia część poradnika NeoForged dla 26.3 (znaki po 300000) nie została przeczytana. Może zawierać dalsze zmiany klienta.
+- [ ] Dokumentacja Fabric „Rendering in the World” była niedostępna w mojej sesji.
+- [ ] Jak dokładnie działa Renderpearl w kodzie (klasy `api`, `backend`, `frontend`).
+- [ ] Dokumentacja Fabric dla 26.3 (obecnie korzystam z wersji dla 26.2).
+- [ ] Status Vulkana w 26.3.
 
 ## Źródła
+- Poradnik migracji 26.2 → 26.3 (NeoForged): https://docs.neoforged.net/primer/docs/26.3/
+- Opis wydania Java Edition 26.3: https://www.minecraft.net/en-us/article/minecraft-java-edition-26-3
+- Fabric dla 26.3: https://fabricmc.net/2026/09/15/263.html
+- Port moda Fabric do 26.3: https://spicesfire.com/blog/porting-a-fabric-mod-to-minecraft-26-3/
+- Co zmienia 26.3 dla modów, shaderów i paczek: https://minecrafthub.io/articles/minecraft-26-3-mods-shaders-packs
 - Snapshot 2 (26.3): https://feedback.minecraft.net/hc/en-us/articles/47030118645389-Minecraft-Java-Edition-26-3-Snapshot-2
 - OIT w 26.3: https://syntaxmine.com/articles/oit-transparency-minecraft-26-3
 - Co psuje się w 26.3: https://syntaxmine.com/articles/what-breaks-in-minecraft-26-3
 - Vulkan w 26.2: https://syntaxmine.com/articles/minecraft-vulkan-renderer-26-2
-- Fabric, podstawy renderowania: https://docs.fabricmc.net/develop/rendering/basic-concepts
-- Fabric, rysowanie GUI: https://docs.fabricmc.net/develop/rendering/gui-graphics
-- Fabric, HUD: https://docs.fabricmc.net/develop/rendering/hud
+- Fabric, rysowanie GUI (26.2): https://docs.fabricmc.net/develop/rendering/gui-graphics
+- Fabric, HUD (26.2): https://docs.fabricmc.net/develop/rendering/hud
+- Fabric, podstawy renderowania (26.2): https://docs.fabricmc.net/develop/rendering/basic-concepts
 - Migracja blit w 26.2: https://github.com/jivinstev/mc-mod-version-upgrade/issues/55

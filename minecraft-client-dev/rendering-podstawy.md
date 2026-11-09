@@ -16,7 +16,7 @@ Shadery to małe programy uruchamiane na GPU. Decydują o wyglądzie: kolor piks
 
 ## API graficzne
 - **OpenGL**: starszy standard, przez lata podstawowy w Minecrafcie.
-- **Vulkan**: nowszy, bliższy sprzętowi, daje większą kontrolę nad GPU, ale jest bardziej złożony. W Minecrafcie od 26.2 jest wbudowany jako opcjonalny, eksperymentalny backend, który według Mojang może być mniej wydajny i stabilny niż OpenGL (szczegóły w [render-26-3.md](render-26-3.md)).
+- **Vulkan**: nowszy, bliższy sprzętowi, daje większą kontrolę nad GPU, ale jest bardziej złożony. W Minecrafcie od 26.2 jest wbudowany jako opcjonalny, eksperymentalny backend, który według Mojang może być mniej wydajny i stabilny niż OpenGL. W 26.3 warstwa API renderowania jest wydzielona do osobnego projektu Renderpearl (szczegóły w [render-26-3.md](render-26-3.md)).
 - Dobrze napisany kod rysujący oddziela logikę od konkretnego API, żeby działać na obu. Z takiego podejścia korzysta np. Render4U (zob. [render4u.md](render4u.md)).
 
 ## Rendering w modach i klientach

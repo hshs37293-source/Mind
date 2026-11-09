@@ -6,6 +6,7 @@ Baza wiedzy o programowaniu, głównie o tworzeniu modów i klientów do Minecra
 - Notatki są pisane własnymi słowami, bez kopiowania cudzych postów i kodu.
 - Każda notatka podaje źródło i datę, żeby było wiadomo, jak świeża jest wiedza.
 - Skupiamy się na materiałach z 2026 roku.
+- **Wersja docelowa: Minecraft 26.3.** Informacje potwierdzone dla 26.3 są oznaczone [26.3], a pochodzące z dokumentacji starszych wersji [26.2] i wymagają weryfikacji.
 
 ## Zasady spójności
 - Każda notatka podaje, której wersji Minecrafta dotyczy.
@@ -17,6 +18,7 @@ Baza wiedzy o programowaniu, głównie o tworzeniu modów i klientów do Minecra
 ## Spis
 ### minecraft-client-dev/
 - [slownik.md](minecraft-client-dev/slownik.md): słownik pojęć i nazw oraz wersje, do których odnoszą się notatki.
-- [render-26-3.md](minecraft-client-dev/render-26-3.md): rendering w Minecrafcie 26.2/26.3 (Vulkan, OIT, GuiGraphicsExtractor, HUD, migracja blit).
+- [render-26-3.md](minecraft-client-dev/render-26-3.md): rendering w Minecrafcie 26.3 (SDL3, Renderpearl, shadery, OIT, GUI i HUD, Vulkan).
+- [srodowisko-26-3.md](minecraft-client-dev/srodowisko-26-3.md): środowisko do modowania 26.3 (Java 25, Gradle, Loom, Fabric API, pułapki portowania).
 - [rendering-podstawy.md](minecraft-client-dev/rendering-podstawy.md): czym jest rendering w Minecrafcie, shadery, OpenGL i Vulkan.
 - [render4u.md](minecraft-client-dev/render4u.md): biblioteka renderowania Render4U (Fabric, Vulkan/OpenGL, shadery, blur, czcionki MSDF).
