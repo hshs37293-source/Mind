@@ -37,6 +37,16 @@ Szczegółowe listy zmian są w sekcji Releases repozytorium na GitHubie. Nie ud
 - Obsługa dwóch backendów (Vulkan i OpenGL) oznacza, że kod rysujący powinien być oddzielony od konkretnego API graficznego.
 - Typowy zestaw elementów UI w takich projektach: zaokrąglone prostokąty, cienie, blur, własne czcionki, gotowe okno ustawień (ClickGUI) i znak wodny.
 
+## Linki (ze zrzutów wątku)
+- Repozytorium: https://github.com/Sanderovich2/Render4U
+- Wideo z demonstracją: https://imgur.com/a/HicixYw
+- Wydania:
+  - https://github.com/Sanderovich2/Render4U/releases/tag/v1.1.0
+  - https://github.com/Sanderovich2/Render4U/releases/tag/v1.2.0
+  - https://github.com/Sanderovich2/Render4U/releases/tag/v1.3.0
+  - https://github.com/Sanderovich2/Render4U/releases/tag/v1.3.1
+  - https://github.com/Sanderovich2/Render4U/releases/tag/v1.3.2
+
 ## Do uzupełnienia
 - [ ] Struktura kodu i klasy publiczne (wymaga dostępu do repozytorium).
 - [ ] Sposób dodania jako zależność do projektu Fabric.
