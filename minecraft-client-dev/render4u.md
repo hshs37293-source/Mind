@@ -2,6 +2,10 @@
 
 Źródło: wątek na forum yougame.biz (post #1 z 26 października 2026), autor wątku: sanderswagboy. Notatka jest streszczeniem własnymi słowami na podstawie zrzutów ekranu wątku, a nie kopią treści.
 
+- **Wersja Minecrafta:** Fabric 26.3 i nowsze (deklaracja autora).
+- **Status informacji:** opis funkcji pochodzi od autora biblioteki i nie był sprawdzany w kodzie.
+- **Powiązane:** kontekst techniczny 26.x (Vulkan, OIT, API rysowania GUI) jest w [render-26-3.md](render-26-3.md), a pojęcia w [slownik.md](slownik.md).
+
 ## Czym jest
 - Wydajny, lekki i nowoczesny system renderowania 2D/UI dla Minecrafta na Fabric (w opisie wersja 26.3 i nowsze).
 - Natywne wsparcie dla dwóch backendów graficznych: **Vulkan** i **OpenGL**.
@@ -33,8 +37,9 @@
 Szczegółowe listy zmian są w sekcji Releases repozytorium na GitHubie. Nie udało mi się ich pobrać, więc nie są tu opisane.
 
 ## Wnioski do nauki
-- Nowoczesne klienty i mody coraz częściej wydzielają warstwę renderowania do osobnej biblioteki z własnymi shaderami zamiast używać wyłącznie wbudowanego `DrawContext`.
-- Obsługa dwóch backendów (Vulkan i OpenGL) oznacza, że kod rysujący powinien być oddzielony od konkretnego API graficznego.
+- Takie biblioteki wydzielają warstwę renderowania z własnymi shaderami zamiast używać wyłącznie wbudowanego API rysowania GUI (w 26.x opisanego w dokumentacji Fabric jako `GuiGraphicsExtractor`, zob. [slownik.md](slownik.md)).
+- Obsługa dwóch backendów (Vulkan i OpenGL) pasuje do tego, że od 26.2 gra ma opcjonalny backend Vulkan obok OpenGL, a kod powinien iść przez warstwę Blaze3D (zob. [render-26-3.md](render-26-3.md)).
+- Własne shadery (zaokrąglenia, cienie, blur) są wrażliwe na zmiany w shaderach core. Mojang zaznacza, że ich nadpisywanie jest niewspierane, więc po każdej aktualizacji Minecrafta trzeba je sprawdzać.
 - Typowy zestaw elementów UI w takich projektach: zaokrąglone prostokąty, cienie, blur, własne czcionki, gotowe okno ustawień (ClickGUI) i znak wodny.
 
 ## Linki (ze zrzutów wątku)

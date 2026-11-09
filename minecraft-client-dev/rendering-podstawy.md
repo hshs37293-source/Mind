@@ -1,6 +1,6 @@
 # Rendering w Minecrafcie – podstawy
 
-Notatka ogólna, pisana własnymi słowami. Nie pochodzi z jednego źródła, więc szczegóły wersji warto weryfikować w dokumentacji Fabric.
+Notatka ogólna, pisana własnymi słowami i niezależna od wersji gry. Nie pochodzi z jednego źródła. Szczegóły dla Minecrafta 26.x (Vulkan, OIT, API rysowania GUI) są w [render-26-3.md](render-26-3.md), a pojęcia w [slownik.md](slownik.md).
 
 ## Czym jest rendering
 Rendering to zamiana danych gry (bloki, postacie, interfejs) na obraz na ekranie. Pracę wykonuje karta graficzna (GPU), a gra wysyła jej polecenia, co narysować. Dzieje się to około 60 razy na sekundę lub częściej, a każdy taki obraz to jedna klatka.
@@ -16,7 +16,7 @@ Shadery to małe programy uruchamiane na GPU. Decydują o wyglądzie: kolor piks
 
 ## API graficzne
 - **OpenGL**: starszy standard, przez lata podstawowy w Minecrafcie.
-- **Vulkan**: nowszy, bliższy sprzętowi, zwykle wydajniejszy, ale bardziej złożony.
+- **Vulkan**: nowszy, bliższy sprzętowi, daje większą kontrolę nad GPU, ale jest bardziej złożony. W Minecrafcie od 26.2 jest wbudowany jako opcjonalny, eksperymentalny backend, który według Mojang może być mniej wydajny i stabilny niż OpenGL (szczegóły w [render-26-3.md](render-26-3.md)).
 - Dobrze napisany kod rysujący oddziela logikę od konkretnego API, żeby działać na obu. Z takiego podejścia korzysta np. Render4U (zob. [render4u.md](render4u.md)).
 
 ## Rendering w modach i klientach

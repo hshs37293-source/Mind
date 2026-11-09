@@ -6,7 +6,7 @@ Notatka zebrana 9 listopada 2026 z publicznych źródeł (lista na dole), opisan
 - Od **26.2** Minecraft ma wbudowany, opcjonalny backend **Vulkan** obok OpenGL.
 - W **26.3** zmieniono sposób rysowania przezroczystości: stary system Improved Transparency zastąpiono techniką **OIT** (order-independent transparency).
 - Kod rysujący w modach powinien używać abstrakcji **Blaze3D**, a nie surowych wywołań OpenGL.
-- Rysowanie GUI przeszło na model „render state” i klasę `GuiGraphicsExtractor`.
+- Rysowanie GUI działa w modelu „render state”. Dokumentacja Fabric dla 26.2 opisuje je przez klasę `GuiGraphicsExtractor` (nazewnictwo klas rozbiega się między źródłami, zob. [slownik.md](slownik.md)).
 - Nadpisywanie shaderów rdzenia (core) jest oficjalnie niewspierane i może przestać działać po aktualizacji.
 
 ## Backend Vulkan (26.2)
@@ -34,7 +34,7 @@ Według jednego z artykułów stabilne wersje na 26.3 miały m.in. Fabric API 0.
 Uwaga o rozbieżności: snapshot 2 podaje wersje paczek danych 109.0 i zasobów 90.0, a artykuł o „co się psuje” podaje 121.0 i 97.1. Różnica może wynikać z późniejszych snapshotów, więc przed użyciem sprawdź aktualne wartości.
 
 ## Rysowanie GUI (dokumentacja Fabric, 26.2)
-- Główna klasa to `GuiGraphicsExtractor`. Zastąpiła wcześniejsze nazwy DrawContext i GuiGraphics (stara nazwa zostaje tylko w nazwie pliku przykładu).
+- Dokumentacja Fabric dla 26.2 nazywa główną klasę rysowania `GuiGraphicsExtractor`. Starsze nazwy z tej samej roli to `DrawContext` i `GuiGraphics`. Issue o migracji `blit` dla 26.2 nadal używa nazwy `GuiGraphics`, więc nie wiem na pewno, czy to zmiana nazwy tej samej klasy, czy zależy to od mapowania nazw. Przed użyciem sprawdź nazwę w jarze swojej wersji.
 - Figury: `fill(...)` (wypełniony prostokąt), `outline(...)`, `horizontalLine(...)`, `verticalLine(...)`. Inne kształty wymagają `BufferBuilder`.
 - Przycinanie: `enableScissor(...)` i `disableScissor()`, mogą być zagnieżdżane, każde włączenie wymaga wyłączenia.
 - Tekstury: `blit(...)` z wieloma przeciążeniami. Zaleca się wersję z rozmiarem tekstury i potokiem, np. `RenderPipelines.GUI_TEXTURED`.
@@ -62,7 +62,7 @@ Zmiana z 26.2: `GuiGraphics.blit` wymaga teraz potoku renderowania jako pierwsze
 - Rysuj interfejs przez `GuiGraphicsExtractor` i potoki, bez surowego OpenGL. Wtedy kod działa na obu backendach.
 - Własne shadery (zaokrąglenia, blur, cienie) są wrażliwe na zmiany core. Trzymaj je w osobnej warstwie i testuj po każdej aktualizacji.
 - Kolory zawsze jako ARGB.
-- Jeśli używasz biblioteki typu Render4U (zob. [render4u.md](render4u.md)), sprawdzaj, którą wersję Minecrafta aktualnie wspiera.
+- Render4U ([render4u.md](render4u.md)) deklaruje wsparcie dla Fabric 26.3 i nowszych oraz dla Vulkana i OpenGL, co zgadza się z opisanym tu kierunkiem zmian. Dokumentacja Fabric jest jednak dla 26.2, więc różnice między 26.2 a 26.3 w API nie są zweryfikowane. Sprawdzaj, którą wersję Minecrafta biblioteka aktualnie wspiera.
 
 ## Do uzupełnienia
 - [ ] Dokumentacja „Rendering in the World” (renderowanie w świecie 3D): strona nie była dostępna w mojej sesji.
