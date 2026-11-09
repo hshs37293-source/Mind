@@ -9,4 +9,5 @@ Baza wiedzy o programowaniu, głównie o tworzeniu modów i klientów do Minecra
 
 ## Spis
 ### minecraft-client-dev/
+- [rendering-podstawy.md](minecraft-client-dev/rendering-podstawy.md): czym jest rendering w Minecrafcie, shadery, OpenGL i Vulkan.
 - [render4u.md](minecraft-client-dev/render4u.md): biblioteka renderowania Render4U (Fabric, Vulkan/OpenGL, shadery, blur, czcionki MSDF).
