@@ -7,7 +7,7 @@ Jedno miejsce na terminy używane w pozostałych notatkach. Dzięki temu te same
 |---|---|---|
 | `DrawContext` | starsze wersje, mapowanie Yarn | dawna nazwa, dla 26.3 nieużywana |
 | `GuiGraphics` | mapowanie Mojang, issue o migracji `blit` dla 26.2 | nazwa z opisu zmian w 26.2 |
-| `GuiGraphicsExtractor` | dokumentacja Fabric 26.2 oraz poradnik migracji 26.3 | nazwa obowiązująca w 26.3 |
+| `GuiGraphicsExtractor` | dokumentacja Fabric 26.2, poradnik migracji 26.3 oraz działający kod Render4U 1.3.2 | nazwa obowiązująca w 26.3 |
 
 Wpis Fabric o 26.3 mówi, że wersja używa nazw z niezaciemnionej gry, więc nazwy z dokumentacji dla starszych wersji mogą nie pasować. Nazwę w razie wątpliwości sprawdzaj w jarze.
 
@@ -40,6 +40,15 @@ Wpis Fabric o 26.3 mówi, że wersja używa nazw z niezaciemnionej gry, więc na
 | Watermark | Znak wodny klienta wyświetlany na ekranie |
 | Liquid Glass | Efekt szkła z rozmyciem tła (nazwa z opisu Render4U) |
 | Skija | Binding biblioteki Skia dla JVM. Render4U wymienia ją jako inspirację |
+| SDF | Signed distance field: odległość znakowana do kształtu liczona w shaderze, daje ostre krawędzie przy każdej skali (zaokrąglone prostokąty, cienie) |
+| `GuiElementRenderState` | Interfejs elementu GUI dodawanego do kolejki rysowania gry (potok, tekstura, granice, przycinanie, wierzchołki) |
+| `TextureSetup` | Opis tekstur i samplerów elementu GUI |
+| `GUI_SNIPPET` / `GUI_TEXTURED_SNIPPET` | Bazowe fragmenty konfiguracji potoków GUI w `RenderPipelines`, na których buduje się własne potoki |
+| `CommandEncoder` / `RenderPass` | Obiekty do własnych przebiegów renderowania (np. blur): tworzenie przebiegu, ustawianie potoku, uniformów i rysowanie |
+| Stratum | Warstwa rysowania GUI. `nextStratum()` przechodzi do następnej, żeby rysować nad wcześniejszymi elementami |
+| `Identifier` | Klasa identyfikatorów zasobów w 26.3 (w starszych wersjach `ResourceLocation`) |
+| Kawase | Rodzaj blura oparty na łańcuchu zmniejszania i powiększania |
+| MixinExtras `@WrapOperation` | Adnotacja owijająca wywołanie metody w mixinie, używana np. do obejścia przy czyszczeniu cache potoków |
 | Loom | Wtyczka Gradle (Fabric Loom) do budowania modów Fabric |
 | Chunk | Fragment świata rysowany jako jedna jednostka |
 | Mesh | Siatka trójkątów opisująca kształt |

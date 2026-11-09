@@ -35,7 +35,8 @@ To ważne dla klientów z własnym ClickGUI i bindami.
 - `FeatureRenderDispatcher#renderAllFeatures` jest statyczne i przyjmuje pass oraz `PreparedFrame`.
 - `RenderPipeline` przyjmuje mapę typów shaderów do identyfikatorów oraz rozmiar push constants.
 - `RenderTarget` i `TextureTarget` przyjmują opcjonalny `GpuFormat` głębi zamiast wartości logicznej.
-- Starsze źródła (dokumentacja Fabric dla 26.2) mówią o warstwie Blaze3D. Dla 26.3 nazwy pakietów mogą być już inne, więc sprawdzaj importy w jarze.
+- **[26.3, kod]** Potwierdzone w działającym projekcie (Render4U 1.3.2): pakiety `com.mojang.renderpearl.api.*` zawierają m.in. `pipeline` (`RenderPipeline`, `ColorTargetState`, `PrimitiveTopology`), `commands` (`CommandEncoder`, `RenderPass`), `textures` (`FilterMode`, `GpuSampler`, `GpuTextureView`), `device` (`GpuDevice`) oraz `GpuFormat`. Pakiet `com.mojang.blaze3d.*` nadal ma m.in. `RenderSystem`, `DefaultVertexFormat`, `VertexConsumer`, `RenderTarget`, `TextureTarget`, `PipelineCache`, `InputConstants` i `Window`. Przykłady użycia: [render4u-kod.md](render4u-kod.md).
+- Starsze źródła (dokumentacja Fabric dla 26.2) mówią o warstwie Blaze3D, więc dla 26.3 importy zawsze sprawdzaj w jarze.
 
 ## Shadery [26.3]
 - `#moj_import` zmieniono na `#include`.
@@ -83,7 +84,8 @@ To ważne dla klientów z własnym ClickGUI i bindami.
 
 ## Vulkan
 - **[26.2]** Od 26.2 jest opcjonalny, eksperymentalny backend. Wybór w Options → Video Settings → Graphics API (Default, Prefer Vulkan, Prefer OpenGL). Mojang mówi, że może być mniej wydajny i stabilny niż OpenGL.
-- **[26.3]** Oficjalny opis wydania 26.3 nie wspomina o Vulkanie. Notatki snapshotu wymieniają znaną usterkę Vulkana na Macu, a w kodzie są makra Renderpearl, więc backend wciąż istnieje. Co dokładnie zmieniło się w nim w 26.3, nie wiem.
+- **[26.3]** Oficjalny opis wydania 26.3 nie wspomina o Vulkanie. Notatki snapshotu wymieniają znaną usterkę Vulkana na Macu.
+- **[26.3, kod]** Backend Vulkan istnieje w 26.3. Render4U wykrywa go przez `RenderSystem.getDevice().getDeviceInfo().backendName()` (wartość „Vulkan”), a w środowisku deweloperskim uruchamia go argumentem JVM `-Dminecraft.graphicsBackend=vulkan`. Ten sam projekt ma obejście dla Vulkana przy przeładowaniu shaderów (wysłanie command encodera przed czyszczeniem cache potoków). Szczegóły w [render4u-kod.md](render4u-kod.md). Co dokładnie zmieniło się w samym backendzie w 26.3, nie wiem.
 - Plotka z tytułu jednego artykułu: Vulkan miałby być domyślny w 26.4. Nie sprawdzałem treści.
 
 ## Zgodność modów w 26.3 [autor]
@@ -109,9 +111,9 @@ To ważne dla klientów z własnym ClickGUI i bindami.
 ## Do uzupełnienia
 - [ ] Ostatnia część poradnika NeoForged dla 26.3 (znaki po 300000) nie została przeczytana. Może zawierać dalsze zmiany klienta.
 - [ ] Dokumentacja Fabric „Rendering in the World” była niedostępna w mojej sesji.
-- [ ] Jak dokładnie działa Renderpearl w kodzie (klasy `api`, `backend`, `frontend`).
+- [ ] Renderpearl: sprawdzone tylko klasy używane przez Render4U (pakiet `api`). Pakiety `backend` i `frontend` nie były czytane.
 - [ ] Dokumentacja Fabric dla 26.3 (obecnie korzystam z wersji dla 26.2).
-- [ ] Status Vulkana w 26.3.
+- [ ] Zmiany samego backendu Vulkan w 26.3 (potwierdzone tylko, że istnieje i jak się go wybiera).
 
 ## Źródła
 - Poradnik migracji 26.2 → 26.3 (NeoForged): https://docs.neoforged.net/primer/docs/26.3/

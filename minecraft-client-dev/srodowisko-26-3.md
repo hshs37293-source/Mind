@@ -11,6 +11,8 @@ Zebrane 9 listopada 2026, własnymi słowami. Wersje narzędzi szybko się zmien
 
 Rozbieżności wynikają z dat publikacji źródeł. Bezpiecznie jest skopiować wersje z aktualnego szablonu Fabric.
 
+**Konfiguracja z prawdziwego projektu pod 26.3 (Render4U 1.3.2, z pliku `gradle.properties` i wrappera):** Minecraft `26.3`, Fabric Loader 0.20.1, Loom 1.17.21 (identyfikator wtyczki `net.fabricmc.fabric-loom`), Fabric API 0.165.0+26.3, Gradle 9.6.0, Java 25. W zależności `minecraft` nie ma wiersza z mapowaniami. Nie budowałem tego projektu, więc to konfiguracja zadeklarowana, nie potwierdzona buildem. Szczegóły w [render4u-kod.md](render4u-kod.md).
+
 ## Mapowania
 - Wpis Fabric mówi, że 26.3 używa nazw z niezaciemnionej gry. Nazwy z dokumentacji dla starszych wersji (np. z mapowań Yarn) mogą więc nie pasować.
 - W starszych gałęziach (1.21.10) artykuł wspomina o `loom.officialMojangMappings()`. Konfigurację mapowań sprawdź w swoim buildzie.

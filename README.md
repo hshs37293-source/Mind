@@ -21,4 +21,5 @@ Baza wiedzy o programowaniu, głównie o tworzeniu modów i klientów do Minecra
 - [render-26-3.md](minecraft-client-dev/render-26-3.md): rendering w Minecrafcie 26.3 (SDL3, Renderpearl, shadery, OIT, GUI i HUD, Vulkan).
 - [srodowisko-26-3.md](minecraft-client-dev/srodowisko-26-3.md): środowisko do modowania 26.3 (Java 25, Gradle, Loom, Fabric API, pułapki portowania).
 - [rendering-podstawy.md](minecraft-client-dev/rendering-podstawy.md): czym jest rendering w Minecrafcie, shadery, OpenGL i Vulkan.
+- [render4u-kod.md](minecraft-client-dev/render4u-kod.md): analiza kodu Render4U 1.3.2 (przebieg klatki GUI, potoki, shadery SDF, blur, MSDF, batcher, wejście SDL3, Vulkan).
 - [render4u.md](minecraft-client-dev/render4u.md): biblioteka renderowania Render4U (Fabric, Vulkan/OpenGL, shadery, blur, czcionki MSDF).

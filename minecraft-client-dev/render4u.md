@@ -1,9 +1,9 @@
 # Render4U – biblioteka renderowania dla Minecrafta (Fabric)
 
-Źródło: wątek na forum yougame.biz (post #1 z 26 października 2026), autor wątku: sanderswagboy. Notatka jest streszczeniem własnymi słowami na podstawie zrzutów ekranu wątku, a nie kopią treści.
+Źródło: wątek na forum yougame.biz (post #1 z 26 października 2026), autor wątku: sanderswagboy. Notatka jest streszczeniem własnymi słowami na podstawie zrzutów ekranu wątku i kodu źródłowego wydania 1.3.2 (ZIP od użytkownika), a nie kopią treści.
 
-- **Wersja Minecrafta:** Fabric 26.3 i nowsze (deklaracja autora), czyli zgodna z wersją docelową tej bazy.
-- **Status informacji:** opis funkcji pochodzi od autora biblioteki i nie był sprawdzany w kodzie.
+- **Wersja Minecrafta:** Fabric 26.3 i nowsze (deklaracja autora), czyli zgodna z wersją docelową tej bazy. W kodzie 1.3.2 `fabric.mod.json` wymaga jednak dokładnie wersji `26.3`.
+- **Status informacji:** opis funkcji z wątku sprawdziłem w kodzie wydania 1.3.2. Szczegóły techniczne (architektura, potoki, shadery, blur, wejście, Vulkan) są w [render4u-kod.md](render4u-kod.md).
 - **Powiązane:** kontekst techniczny 26.x (Vulkan, OIT, API rysowania GUI) jest w [render-26-3.md](render-26-3.md), a pojęcia w [slownik.md](slownik.md).
 
 ## Czym jest
@@ -53,6 +53,6 @@ Szczegółowe listy zmian są w sekcji Releases repozytorium na GitHubie. Nie ud
   - https://github.com/Sanderovich2/Render4U/releases/tag/v1.3.2
 
 ## Do uzupełnienia
-- [ ] Struktura kodu i klasy publiczne (wymaga dostępu do repozytorium).
-- [ ] Sposób dodania jako zależność do projektu Fabric.
-- [ ] Zmiany w wydaniach v1.1.0–v1.3.2.
+- [x] Struktura kodu i klasy publiczne: zob. [render4u-kod.md](render4u-kod.md).
+- [ ] Sposób dodania jako zależność: w `build.gradle` nie ma bloku publikacji, a README opisuje projekt jako bazę do sklonowania i zbudowania. Nie wiem, czy jest publikowany w Maven.
+- [ ] Zmiany w wydaniach v1.1.0–v1.3.2: archiwum nie zawiera historii ani changelogu.
