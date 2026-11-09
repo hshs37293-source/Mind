@@ -2,6 +2,8 @@
 
 Baza wiedzy o programowaniu, głównie o tworzeniu modów i klientów do Minecrafta.
 
+**Zacznij tutaj:** [najwazniejsze-26-3.md](minecraft-client-dev/najwazniejsze-26-3.md), ściągawka na jedną stronę.
+
 ## Zasady
 - Notatki są pisane własnymi słowami, bez kopiowania cudzych postów i kodu.
 - Każda notatka podaje źródło i datę, żeby było wiadomo, jak świeża jest wiedza.
@@ -14,12 +16,20 @@ Baza wiedzy o programowaniu, głównie o tworzeniu modów i klientów do Minecra
 - Nazwy i pojęcia są zebrane w [slownik.md](minecraft-client-dev/slownik.md). Nowe pojęcie dodajemy tam.
 - Rozbieżności między źródłami są opisane w notatkach, a nie wygładzane. Informacje od autorów wątków są oznaczone jako niezweryfikowane, dopóki nie sprawdzi się ich w kodzie lub dokumentacji.
 - Dokumentacja oficjalna (Fabric, Mojang) ma pierwszeństwo przed forami i artykułami.
+- Kod w `przyklady/` ma opis, czy został przetestowany.
 
 ## Spis
+
 ### minecraft-client-dev/
+- [najwazniejsze-26-3.md](minecraft-client-dev/najwazniejsze-26-3.md): ściągawka na jedną stronę, od czego zacząć przy kliencie na 26.3.
 - [slownik.md](minecraft-client-dev/slownik.md): słownik pojęć i nazw oraz wersje, do których odnoszą się notatki.
-- [render-26-3.md](minecraft-client-dev/render-26-3.md): rendering w Minecrafcie 26.3 (SDL3, Renderpearl, shadery, OIT, GUI i HUD, Vulkan).
 - [srodowisko-26-3.md](minecraft-client-dev/srodowisko-26-3.md): środowisko do modowania 26.3 (Java 25, Gradle, Loom, Fabric API, pułapki portowania).
 - [rendering-podstawy.md](minecraft-client-dev/rendering-podstawy.md): czym jest rendering w Minecrafcie, shadery, OpenGL i Vulkan.
-- [render4u-kod.md](minecraft-client-dev/render4u-kod.md): analiza kodu Render4U 1.3.2 (przebieg klatki GUI, potoki, shadery SDF, blur, MSDF, batcher, wejście SDL3, Vulkan).
+- [render-26-3.md](minecraft-client-dev/render-26-3.md): rendering w Minecrafcie 26.3 (SDL3, Renderpearl, shadery, OIT, GUI i HUD, Vulkan).
 - [render4u.md](minecraft-client-dev/render4u.md): biblioteka renderowania Render4U (Fabric, Vulkan/OpenGL, shadery, blur, czcionki MSDF).
+- [render4u-kod.md](minecraft-client-dev/render4u-kod.md): analiza kodu Render4U 1.3.2 (przebieg klatki GUI, potoki, shadery SDF, blur, MSDF, batcher, wejście SDL3, Vulkan).
+- [render4u-ulepszenia.md](minecraft-client-dev/render4u-ulepszenia.md): przegląd Render4U 1.3.2: co dobre, co słabe (z dowodami) i proponowane poprawki.
+
+### przyklady/java/
+- `dev/mind/keys/ModifierKeys.java` i `ModifierKeysTest.java`: dopasowanie klawiszy modyfikujących GLFW i SDL (przetestowane).
+- `dev/mind/render/GraphicsBackend.java`: wykrywanie backendu graficznego (nieprzetestowane, zależy od Minecrafta).
